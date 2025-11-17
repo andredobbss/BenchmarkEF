@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BenchmarkEF.Infraestructure.Context;
 
-public sealed class BenchmarkEFContext : DbContext
+internal sealed class BenchmarkEFContext : DbContext
 {
-    public DbSet<Department>? Departments { get; set; } = null;
-    public DbSet<Functionary>? Functionaries { get; set; } = null;
-    public DbSet<FunctionaryDetail>? FunctionaryDetails { get; set; } = null;
-    public DbSet<FunctionaryProject>? FunctionaryProject { get; set; } = null;
-    public DbSet<Project>? Projects { get; set; } = null;
+    internal DbSet<Department>? Departments { get; set; } = null;
+    internal DbSet<Functionary>? Functionaries { get; set; } = null;
+    internal DbSet<FunctionaryDetail>? FunctionaryDetails { get; set; } = null;
+    internal DbSet<FunctionaryProject>? FunctionaryProject { get; set; } = null;
+    internal DbSet<Project>? Projects { get; set; } = null;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -47,7 +47,7 @@ class Program
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("==========================================");
-        Console.WriteLine(         BenchmarkEFResources.Title);
+        Console.WriteLine(BenchmarkEFResources.Title);
         Console.WriteLine("==========================================");
         Console.ResetColor();
 
@@ -64,7 +64,7 @@ class Program
             Console.WriteLine($"\n{BenchmarkEFResources.CreateAndPopulatingDB}");
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            using var service = new PersistenceService();
+            var service = new PersistenceService();
             service.AddData();
 
             stopwatch.Stop();
@@ -89,7 +89,9 @@ class Program
         {
             Console.WriteLine($"\n{BenchmarkEFResources.CheckingDatabase}");
 
-            if (!DataBaseService.HasDatabase())
+            var service = new DatabaseValidatorService();
+
+            if (!service.HasDatabase())
             {
                 ShowError(BenchmarkEFResources.DataBaseExists);
                 return;

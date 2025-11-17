@@ -1,13 +1,14 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using BenchmarkEF.Domain.Repositories;
+using Microsoft.Data.SqlClient;
 
-namespace BenchmarkEF.Infraestructure;
+namespace BenchmarkEF.Infraestructure.Repositories;
 
-public static class DataBaseInfraestructure
+public sealed class DatabaseValidatorRepository : IDatabaseValidatorRepository
 {
-    public static bool HasDatabase()
+    public bool HasDatabase()
     {
         var masterConnectionString = new SqlConnectionStringBuilder(
-            ConnectionStringConfiguration.GetConnectionString())
+           ConnectionStringConfiguration.GetConnectionString())
         {
             InitialCatalog = "master"
         }.ConnectionString;

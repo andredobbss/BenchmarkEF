@@ -1,159 +1,92 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using AutoMapper;
+using BenchmarkDotNet.Attributes;
 using BenchmarkEF.Console.DTOs;
-using BenchmarkEF.Infraestructure.Context;
-using BenchmarkEF.Infraestructure.Resources;
-using Dapper;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+using BenchmarkEF.Console.Mappings;
+using BenchmarkEF.Domain.Repositories;
+using BenchmarkEF.Infraestructure.Repositories;
 
 namespace BenchmarkEF.Console.Services;
 
 [RankColumn]
 [MemoryDiagnoser]
-public class BenchmarkEFService : IDisposable
+public class BenchmarkEFService
 {
-    private readonly BenchmarkEFContext _context;
+    private readonly IMapper _mapper;
 
-    private readonly string _connectionString;
+    private readonly IBenchmarkEFRepository _benchmarkEFRepository;
     public BenchmarkEFService()
     {
-        _context = new BenchmarkEFContext();
+        _benchmarkEFRepository = new BenchmarkEFRepository();
 
-        _connectionString = _context.Database.GetDbConnection().ConnectionString;
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<MappingProfile>();
+        });
+
+        _mapper = config.CreateMapper();
     }
 
     // ========= EF LINQ ==========
     [Benchmark]
     public List<FunctionaryProjectDto> GetFunctionariesWithProjectsEFLinq()
     {
-        var query =
-            from f in _context.Functionaries!
-            join d in _context.Departments!
-                on f.DepartmentId equals d.DepartmentId
-            join fp in _context.FunctionaryProject!
-                on f.FunctionaryId equals fp.FunctionaryId
-            join p in _context.Projects!
-                on fp.ProjectId equals p.ProjectId
-            orderby p.ProjectId
-            select new FunctionaryProjectDto
-            {
-                FunctionaryName = f.FunctionaryName,
-                Position = f.Position,
-                DepartmentName = d.DepartmentName,
-                ProjectName = p.ProjectName,
-                Description = p.Description,
-                StartDate = p.StartDate,
-                UpdateDate = p.UpdateDate,
-                EndDate = p.EndDate,
-                Status = p.Status
-            };
+        var query = _benchmarkEFRepository.GetFunctionariesWithProjectsEFLinq().ToList();
 
-        return query.ToList();
+        return _mapper.Map<List<FunctionaryProjectDto>>(query);
     }
 
     // ========= DAPPER ==========
     [Benchmark]
     public List<FunctionaryProjectDto> GetFunctionariesWithProjectsDapper()
     {
-        using var connection = new SqlConnection(_connectionString);
+        var query = _benchmarkEFRepository.GetFunctionariesWithProjectsDapper().ToList();
 
-        const string sql = @"SELECT 
-                              [f].[FunctionaryName], 
-                              [f].[Position], 
-                              [d].[DepartmentName], 
-                              [p].[ProjectName], 
-                              [p].[Description], 
-                              [p].[Budget], 
-                              [p].[StartDate],  
-                              [p].[UpdateDate],
-                              [p].[EndDate],	 
-                              [p].[Status] 
-                           FROM 
-                              [Functionaries] AS [f]
-                           INNER JOIN 
-                              [Departments] AS [d] ON [f].[DepartmentId] = [d].[DepartmentId]
-                           INNER JOIN 
-                              [FunctionaryProject] AS [f0] ON [f].[FunctionaryId] = [f0].[FunctionaryId]
-                           INNER JOIN 
-                              [Projects] AS [p] ON [f0].[ProjectId] = [p].[ProjectId]
-                           ORDER BY
-                               [p].[ProjectId]";
-
-        return  connection.Query<FunctionaryProjectDto>(sql).ToList();
+        return _mapper.Map<List<FunctionaryProjectDto>>(query);
     }
 
     // ========= EF SQL RAW ==========
     [Benchmark]
     public List<FunctionaryProjectDto> GetFunctionariesWithProjectsEFSqlRaw()
     {
-        const string sql = @"SELECT 
-                               [f].[FunctionaryName], 
-                               [f].[Position], 
-                               [d].[DepartmentName], 
-                               [p].[ProjectName], 
-                               [p].[Description], 
-                               [p].[Budget], 
-                               [p].[StartDate],  
-                               [p].[UpdateDate],
-                               [p].[EndDate],	 
-                               [p].[Status] 
-                            FROM 
-                               [Functionaries] AS [f]
-                            INNER JOIN 
-                               [Departments] AS [d] ON [f].[DepartmentId] = [d].[DepartmentId]
-                            INNER JOIN 
-                               [FunctionaryProject] AS [f0] ON [f].[FunctionaryId] = [f0].[FunctionaryId]
-                            INNER JOIN 
-                               [Projects] AS [p] ON [f0].[ProjectId] = [p].[ProjectId]
-                            ORDER BY
-                                [p].[ProjectId]";
+        var query = _benchmarkEFRepository.GetFunctionariesWithProjectsEFSqlRaw().ToList();
 
-        return _context.Database.SqlQueryRaw<FunctionaryProjectDto>(sql).ToList();
+        return _mapper.Map<List<FunctionaryProjectDto>>(query);
     }
 
     // ========= DAPPER – RESOURCE ==========
     [Benchmark]
     public List<FunctionaryProjectDto> GetFunctionariesWithProjectsDapperFileResource()
     {
-        using var connection = new SqlConnection(_connectionString);
+        var query = _benchmarkEFRepository.GetFunctionariesWithProjectsDapperFileResource().ToList();
 
-        var sql = BenchmarkEFResources.FunctionaryProject;
-
-        return connection.Query<FunctionaryProjectDto>(sql).ToList();
+        return _mapper.Map<List<FunctionaryProjectDto>>(query);
     }
 
     // ========= EF SQL RAW – RESOURCE ==========
     [Benchmark]
     public List<FunctionaryProjectDto> GetFunctionariesWithProjectsEFSqlRawFileResource()
     {
-        var sql = BenchmarkEFResources.FunctionaryProject;
+        var query = _benchmarkEFRepository.GetFunctionariesWithProjectsEFSqlRawFileResource().ToList();
 
-        return _context.Database.SqlQueryRaw<FunctionaryProjectDto>(sql).ToList();
+        return _mapper.Map<List<FunctionaryProjectDto>>(query);
     }
 
     // ========= DAPPER – VIEW ==========
     [Benchmark]
     public List<FunctionaryProjectDto> GetFunctionariesWithProjectsDapperView()
     {
-        using var connection = new SqlConnection(_connectionString);
+        var query = _benchmarkEFRepository.GetFunctionariesWithProjectsDapperView().ToList();
 
-        const string sql = "SELECT * FROM vw_FunctionaryProject ORDER BY ProjectId";
-
-        return connection.Query<FunctionaryProjectDto>(sql).ToList();
+        return _mapper.Map<List<FunctionaryProjectDto>>(query);
     }
 
     // ========= EF SQL RAW – VIEW ==========
     [Benchmark]
     public List<FunctionaryProjectDto> GetFunctionariesWithProjectsEFSqlRawView()
     {
-        const string sql = "SELECT * FROM vw_FunctionaryProject ORDER BY ProjectId";
+        var query = _benchmarkEFRepository.GetFunctionariesWithProjectsEFSqlRawView().ToList();
 
-        return _context.Database.SqlQueryRaw<FunctionaryProjectDto>(sql).ToList();
-    }
-
-    public void Dispose()
-    {
-        _context.Dispose();
+        return _mapper.Map<List<FunctionaryProjectDto>>(query);
     }
 }
 
