@@ -16,6 +16,7 @@ O foco principal é medir, com precisão científica, o desempenho de cada abord
 | **Bogus** | Geração de dados fake realistas |
 | **BenchmarkDotNet** | Execução de benchmarks com rigor estatístico |
 | **SQL Server** | Banco de dados utilizado |
+|**ZEntityFrameworkExtensionsEFCore** | Para carregamento massivo de dados |
 
 ---
 
@@ -76,3 +77,50 @@ Os resultados mostram um padrão consistente:
 ## 📈 Exemplo de Benchmark
 
 <img src="https://github.com/andredobbss/BenchmarkEF/blob/master/BenchmarkEF.Infraestructure/img/Benchmark.png"/>
+
+---
+
+## 🧪 Executando o Projeto
+- 1 - Defina o nome do banco de dados no arquivo ConnectionStringConfiguration do projeto de infraestrutura.
+- 2 - Informe o nome do servidor, o user ID e senha na string do arquivo ConnectionStringConfiguration do projeto de infraestrutura.
+- 3 - Crie a connection string como variável de ambiente e informe o nome no método GetEnvironmentVariable do arquivo ConnectionStringConfiguration do projeto de infraestrutura.
+```csharp
+internal static class ConnectionStringConfiguration
+{
+    internal const string databaseName = "BenchmarkEF"; // Defina o nome do banco de dados
+    internal static string GetConnectionString()
+    {
+                                                                  // Obtenha a string de conexão da variável de ambiente
+        string sqlConnectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION_BENCHMARKEF") ??
+          $@"Server = SERVERABC;
+             Database = {databaseName}; 
+             User ID = abc;
+             Password = xxxxxxxx;
+             Trusted_Connection = False;
+             TrustServerCertificate = True";
+
+        return sqlConnectionString;
+    }
+}
+```
+- 4 - Defina o projeto console como projeto de inicialização e em modo Release.  ⚠ Importante: BenchmarkDotNet só roda em Release.
+- 5 - Rode.
+- 6 - Crie e popule o banco de dados (opção 1).
+- 7 - Execute o Benchmark (opção 2).
+
+```shell
+==========================================
+Benchmark EF Tool
+==========================================
+1. Criar e popular o banco de dados
+2. Executar benchmarks
+0. Sair
+
+Selecione uma opção:
+```
+---
+
+## 📄 Licença
+Este projeto está sob a licença MIT.
+
+---
