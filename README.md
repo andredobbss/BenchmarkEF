@@ -8,15 +8,16 @@ O foco principal é medir, com precisão científica, o desempenho de cada abord
 
 ## 🚀 Tecnologias Utilizadas
 
-| Tecnologia | Finalidade |
-|-----------|------------|
-| **.NET 8** | API e benchmarks |
-| **Entity Framework Core** | LINQ, SQL Raw e Views |
-| **Dapper** | Micro ORM focado em performance |
-| **Bogus** | Geração de dados fake realistas |
-| **BenchmarkDotNet** | Execução de benchmarks com rigor estatístico |
-| **SQL Server** | Banco de dados utilizado |
-|**ZEntityFrameworkExtensionsEFCore** | Para carregamento massivo de dados |
+| Tecnologia                              | Finalidade                                                     |
+| --------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **.NET 8**                              | Plataforma principal da aplicação, APIs e execução dos benchmarks                        |
+| **Entity Framework Core**               | ORM para consultas LINQ, SQL Raw, criação do banco e mapeamento ORM                      |
+| **Dapper**                              | Micro-ORM de alta performance para leitura e consultas diretas                           |
+| **Bogus**                               | Geração de dados fake realistas para popular o banco nos testes                          |
+| **BenchmarkDotNet**                     | Framework para execução de benchmarks com precisão estatística                           |
+| **SQL Server**                          | Banco relacional utilizado pela aplicação e pelos testes                                 |
+| **Z.EntityFramework.Extensions.EFCore** | Extensão do EF Core para *bulk operations* (inserções, atualizações e deleções em massa) |
+| **AutoMapper**                          | Mapeamento automático entre entidades e DTOs, usado para simplificar conversões          |
 
 ---
 
